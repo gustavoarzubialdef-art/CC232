@@ -19,6 +19,8 @@ Responde:
 Como menciona LIFO la L(last) el ultimo elemento que ingrese sera el primero que salga mientras que en el FIFO F(firts) el primero en entrar sera el primero en salir
 
 2. Explica por qué `Stack` resuelve naturalmente problemas donde importa "lo último pendiente".
+Porque funciona con acceso LIFO (Last In, First Out), la pila guarda el estado parcial en orden inverso al de llegada, y eso coincide con problemas donde el control debe retomar lo último no resuelto.
+
 3. Explica por qué `Queue` modela naturalmente procesos de espera y atención.
 4. Explica qué significa reemplazar recursión implícita por una estructura explícita.
 5. Explica qué información mínima debe guardarse para que una pila permita reconstruir una solución parcial.
