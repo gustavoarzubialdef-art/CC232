@@ -35,6 +35,11 @@ int main() {
         assert(equals(resultMax, {-1, -1, -2}));
         assert(equals(resultMin, {-3, -4, -4}));
     }
+    {
+        std::vector<int> nums = {-5,-4,-3,-2,-1};
+        auto resultMax = sliding_window_maximum(nums, 2);
+        assert(equals(resultMax, {-4, -3, -2, -1}));
+    }
 
     std::cout << "All tests passed.\n";
     return 0;
