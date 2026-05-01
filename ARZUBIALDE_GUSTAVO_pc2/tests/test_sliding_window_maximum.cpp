@@ -32,7 +32,7 @@ int main() {
         std::vector<int> nums = {-2, -1, -3, -4, -2};
         auto resultMax = sliding_window_maximum(nums, 3);
         auto resultMin = sliding_window_minimum(nums, 3);
-        assert(equals(resultMax, {-1, -1, -3}));
+        assert(equals(resultMax, {-1, -1, -2}));
         assert(equals(resultMin, {-3, -4, -4}));
     }
 

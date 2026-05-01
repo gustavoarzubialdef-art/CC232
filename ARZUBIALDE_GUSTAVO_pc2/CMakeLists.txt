@@ -9,3 +9,5 @@ include_directories(${CMAKE_SOURCE_DIR}/include)
 
 add_executable(sliding_window_maximum src/main.cpp src/sliding_window_maximum.cpp)
 add_executable(test_sliding_window_maximum tests/test_sliding_window_maximum.cpp src/sliding_window_maximum.cpp)
+add_executable(demo_sliding_window_maximum demos/demo_sliding_window_maximum.cpp src/sliding_window_maximum.cpp)
+add_executable(benchmark_sliding_window_maximum benchmark/benchmark_sliding_window_maximum.cpp src/sliding_window_maximum.cpp)

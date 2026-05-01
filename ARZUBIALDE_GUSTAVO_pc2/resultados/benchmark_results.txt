@@ -1,0 +1,3 @@
+Benchmark: n = 100000, k = 500
+Result size: 99501
+Elapsed time: 9091 microseconds
