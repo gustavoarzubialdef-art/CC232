@@ -316,13 +316,66 @@ Una `DLLList<T>` usa nodo centinela `dummy`, donde `dummy.next` apunta al primer
 
 **a) [0.6 pts]** Escriba pseudocódigo de `addBefore(Node* w, T x)` actualizando todos los enlaces necesarios.
 
+Node* u = new Node;
+u->elem = x;
+u->next = w;
+u->prev = w->prev;
+w->prev->next = u;
+w->prev = u;
+size = size + 1;
+
 **b) [0.5 pts]** Explique por qué el nodo centinela elimina casos especiales al insertar al inicio o al final.
+
+El nodo centinela elimina los casos especiales al insertar al inicio o al final porque:
+
+- **Inserción al inicio:**
+  En lugar de verificar si la lista está vacía o si hay que actualizar referencias nulas, siempre se inserta el nuevo nodo entre **dummy** y **dummy.next**.
+  El **dummy** garantiza que existe un nodo previo.
+
+- **Inserción al final:**
+  De forma similar, el nuevo nodo se inserta entre **dummy.prev** y **dummy**.
+  El **dummy** garantiza que existe un nodo siguiente.
+
+**Conclusión:** El nodo centinela actúa como un ancla permanente en ambos extremos de la lista. Gracias a él, las operaciones de inserción y eliminación no necesitan distinguir entre lista vacía, inicio o final, las referencias siempre existen y se actualizan de manera uniforme.
 
 **c) [0.5 pts]** Justifique por qué `getNode(i)` puede implementarse en \( O(1 + \min\{i, n - i\}) \).
 
+En una `DLLList<T>` la estrategia de búsqueda para obtener el nodo en posición **i** es:
+- Si **i** está más cerca del inicio, se recorre desde **dummy.next** hacia adelante.
+- Si **i** está más cerca del final, se recorre desde **dummy.prev** hacia atrás.
+
+**Costos:**
+- Recorrer desde el inicio hasta **i** cuesta **i** pasos.
+- Recorrer desde el final hasta **i** cuesta **n - i** pasos, donde **n** es el tamaño de la lista.
+
+En ambos casos hay un costo constante adicional por acceder al centinela y comenzar el recorrido.
+
+**Conclusión:** El tiempo de ejecución es: $O(1 + \min\{i, \, n - i\})$ porque se elige el recorrido más corto entre avanzar desde el inicio o retroceder desde el final.
+
 **d) [0.7 pts]** Diseñe `rotate(r)` que rota la lista `r` posiciones a la derecha sin mover los datos elemento por elemento. Puede describir los cambios de enlaces.
 
+Para rotar la lista `r` posiciones a la derecha sin mover los datos elemento por elemento, se puede aprovechar la estructura doblemente enlazada y el nodo centinela:
+
+1. **Normalización de r:**
+   Si **r > n** (donde **n** es el tamaño de la lista), se toma $r = r \bmod n$.
+
+2. **Localización del nuevo inicio y fin:**
+   - El nuevo primer nodo será el que actualmente está en la posición **n - r**.
+   - El nuevo último nodo será el que actualmente está en la posición **n - r - 1**.
+
+3. **Reajuste de enlaces:**
+   - **dummy.next** se actualiza para apuntar al nuevo primer nodo.
+   - **dummy.prev** se actualiza para apuntar al nuevo último nodo.
+   - El antiguo último nodo conecta con el antiguo primer nodo, cerrando el ciclo.
+   - Se actualizan los punteros **prev** y **next** de los nodos involucrados para mantener la doble conexión.
+
+4. **Resultado:**
+   La lista queda rotada **r** posiciones a la derecha, manteniendo el orden relativo de los elementos, sin necesidad de copiar datos ni recorrer nodo por nodo.
+
 **e) [0.7 pts]** Proponga dos invariantes estructurales que permitan detectar errores de punteros en una prueba tipo `checkSize()` o recorrido doble.
+
+1. recorriendo la lista desde **dummy.next** con **next** exactamente **size** veces se debe regresar a **dummy**.
+2. recorriendo desde **dummy.prev** con **prev** exactamente **size** veces se debe regresar a **dummy**.
 
 ---
 
@@ -330,13 +383,36 @@ Una `DLLList<T>` usa nodo centinela `dummy`, donde `dummy.next` apunta al primer
 
 Se desea probar una implementación de `isBalanced(string s)` que acepta paréntesis, corchetes y llaves: `( )`, `[ ]` y `{ }`. Debe retornar `true` si toda apertura se cierra en orden correcto.
 
-**a) [0.8 pts]** Proponga **0** casos de prueba con salida esperada. Deben incluir cadena vacía, anidamiento correcto, cruce incorrecto, cierre sin apertura y apertura sin cierre.
+**a) [0.8 pts]** Proponga **2** casos de prueba con salida esperada. Deben incluir cadena vacía, anidamiento correcto, cruce incorrecto, cierre sin apertura y apertura sin cierre.
+
+1. Anidamiento correcto: **"([{}])"** retorna **true**
+2. Cruce incorrecto: **"([)]"** retorna **false**
 
 **b) [0.5 pts]** Explique qué error específico detecta cada grupo de pruebas.
 
+- cadena vacía: detecta el caso donde no hay símbolos de apertura ni de cierre.
+- anidamientos correctos: detecta que las aperturas y cierres están en orden válido y bien anidados.
+- cruces incorrectos: detecta patrones como `([)]` donde las aperturas y cierres no coinciden en orden.
+- cierre sin apertura: detecta casos donde aparece un símbolo de cierre (`)`, `]`, `}`) sin que exista previamente una apertura correspondiente.
+- apertura sin cierre: detecta casos donde al final de la cadena quedan símbolos de apertura (`(`, `[`, `{`) que nunca fueron cerrados.
+
 **c) [0.4 pts]** Indique el ADT adecuado para resolver el problema y justifique por qué.
 
+El ADT adecuado es una pila porque:
+- los delimitadores se cierran en orden inverso al que se abren.
+- cada apertura se apila y cada cierre se compara con el tope.
+- el comportamiento LIFO de la pila coincide con el requisito del problema.
+
 **d) [0.3 pts]** Analice complejidad temporal y espacial.
+
+**Complejidad temporal**
+- El algoritmo recorre la cadena de izquierda a derecha, examinando cada carácter una sola vez.
+- Cada operación de verificación (apertura o cierre) se realiza en tiempo constante.
+- Por lo tanto, el tiempo total es proporcional a la longitud de la cadena: $O(n)$ donde $n$ es el número de caracteres en la cadena.
+
+**Complejidad espacial**
+- En el peor caso, si la cadena contiene únicamente aperturas, se almacenan todos los caracteres.
+- Por lo tanto, el espacio adicional requerido es proporcional al número de caracteres: $O(n)$
 
 ---
 
@@ -346,12 +422,53 @@ Se recibe un flujo de enteros y se desea responder, para cada posición, el mín
 
 **a) [0.4 pts]** Defina claramente la entrada, la salida y las precondiciones sobre \( k \).
 
+**Entrada:**
+- una secuencia de enteros $a[0..n-1]$.
+- un entero $k$ con el tamaño de la ventana.
+
+**Salida:**
+- una secuencia de $n-k+1$ valores donde cada valor es el mínimo de la ventana actual $a[i-k+1..i]$ para $i = k-1..n-1$.
+
+**Precondiciones:**
+- $k >= 1$.
+- $k <= n$.
+- $n >= k$.
+
 **b) [0.6 pts]** Proponga una representación basada en una cola/deque auxiliar que mantenga candidatos a mínimo.
+
+Usar un **deque** que almacene índices de elementos candidatos a mínimo. Para cada nuevo elemento $a[i]$:
+1. eliminar del final del **deque** todos los índices $j$ tales que $a[j] > a[i]$, porque $a[i]$ es un mejor candidato y los anteriores ya no pueden ser mínimos mientras **i** esté en la ventana.
+2. insertar $i$ al final del **deque**.
+3. eliminar del frente del **deque** los índices $j$ que ya no pertenecen a la ventana actual, es decir, $j <= i-k$.
+4. el mínimo de la ventana actual es $a[deque.front()]$ cuando $i >= k-1$.
 
 **c) [0.6 pts]** Dé los invariantes de la estructura auxiliar.
 
+1. los índices en el **deque** están en orden estrictamente creciente.
+2. los valores correspondientes $a[index]$ son no decrecientes de frente a final.
+3. el frente del **deque** siempre referencia el mínimo válido de la ventana actual.
+4. ningún índice fuera de la ventana actual permanece en el **deque**.
+
 **d) [0.6 pts]** Trace su algoritmo para la secuencia \([5, 2, 4, 1, 3, 0, 6]\) con \( k = 3 \).
+
+- $i=0$, valor $5$: deque $= [0]$, sin salida.
+- $i=1$, valor $2$: quita $0$ porque $5 > 2$, deque $= [1]$.
+- $i=2$, valor $4$: deque $= [1,2]$, salida para ventana $[5,2,4]$ → mínimo = $2$.
+- $i=3$, valor $1$: quita $2$ y $1$ porque $4 > 1$ y $2 > 1$, deque $= [3]$, salida $[2,4,1]$ → mínimo $= 1$.
+- $i=4$, valor $3$: deque $= [3,4]$, salida $[4,1,3]$ → mínimo = $1$.
+- $i=5$, valor $0$: quita $4$ y $3$ porque son mayores, quita también $3$ si es necesario, deque $= [5]$, salida $[1,3,0]$ → mínimo $= 0$.
+- $i=6$, valor $6$: deque $= [5,6]$, salida $[3,0,6]$ → mínimo = $0$.
+
+Resultados de las ventanas: $[2, 1, 1, 0, 0]$.
 
 **e) [0.5 pts]** Justifique complejidad total y costo amortizado por elemento.
 
+**Complejidad temporal**
+Cada elemento se inserta una vez y se elimina del **deque** como máximo una vez. Por lo tanto, el número total de operaciones es proporcional a $n$ (longitud del flujo): $O(n)$
+
+**Costo amortizado por elemento**
+Como cada inserción/eliminación ocurre a lo sumo una vez por elemento, el costo promedio es: $O(1)$
+
 **f) [0.3 pts]** Compare con recalcular el mínimo recorriendo la ventana en cada posición.
+
+Recalcular el mínimo para cada ventana recorriendo $k$ elementos daría un costo $O(n*k)$. Cuando $k$ es grande, esto es mucho peor que el algoritmo con **deque**, que es $O(n)$. Por eso el método de ventana deslizante con **deque** es significativamente más eficiente.
