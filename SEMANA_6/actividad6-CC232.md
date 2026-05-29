@@ -99,10 +99,24 @@ Luego modifica `PQ_ComplHeap_percolateDown.h` para usar esas funciones auxiliare
 Responde:
 
 1. ¿Por qué conviene expresar `parent`, `left`, `right` y pruebas de frontera como funciones pequeñas?
+   
+   En un heap almacenado como vector implícito (en `std::vector`), los índices de padres e hijos siguen fórmulas matemáticas que se repiten una y otra vez. Si escribes estas fórmulas directamente cada vez, cometes errores y el código se vuelve difícil de leer. Por eso `Semana6/include/PQ_ComplHeap_macro.h` (líneas 7-10) define pequeñas funciones auxiliares como `pqParent()`, `pqLeftChild()`, etc., que encapsulan esas fórmulas. Así, cualquier función en otros archivos como `Semana6/include/PQ_ComplHeap_percolateDown.h` (líneas 16-18) puede simplemente escribir `pqLeftChild(i)` en lugar de `2*i+1`, lo que hace el código más claro y menos propenso a errores.
+
 2. ¿Qué ventaja tiene `constexpr` frente a macros?
+   
+   En C++, existen dos formas de definir funciones reutilizables pequeñas. Los macros (con `#define`) son instrucciones al preprocesador que simplemente reemplazan texto sin verificar tipos. Las funciones `constexpr` son funciones reales que el compilador evalúa en tiempo de compilación cuando es posible, verificando que los tipos sean correctos. Al usar `inline constexpr` en `Semana6/include/PQ_ComplHeap_macro.h`, obtienes seguridad de tipos, capacidad de depuración, y mejor estructura de código al pertenecer a un `namespace` específico, evitando conflictos de nombres globales.
+
 3. ¿Qué caso borde aparece cuando el nodo tiene solo hijo izquierdo?
+   
+   En un heap completo binario representado como vector dentro de `std::vector`, un nodo puede tener ambos hijos, solo hijo izquierdo, o ninguno. El caso borde es cuando existe el hijo izquierdo en el índice `2*i+1` dentro del rango, pero NO existe el hijo derecho en `2*i+2` dentro del rango válido del vector. En `Semana6/include/PQ_ComplHeap_percolateDown.h`, cuando se elige cuál hijo es el dominante, se debe verificar que el hijo derecho exista ANTES de acceder a él. Si no se hace esta comprobación, se accede a memoria inválida y el programa puede fallar.
+
 4. ¿Qué condición identifica una hoja en la representación implícita?
+   
+   En la representación implícita del heap como vector almacenado en `std::vector`, un nodo es una hoja si NO tiene hijo izquierdo. Esto se verifica con la condición `2*i+1 >= n`, donde `n` es el tamaño del vector. La función auxiliar `pqHasLeftChild(i, n)` encapsula exactamente esto. En el bucle de `Semana6/include/PQ_ComplHeap_percolateDown.h`, mientras `pqHasLeftChild(i, n)` sea verdadero, continuamos bajando. Cuando sea falso (el nodo es hoja), terminamos la bajada porque una hoja ya satisface la propiedad de heap por definición.
+
 5. ¿Qué cambió en `percolateDown` después de usar las funciones auxiliares?
+   
+   Al usar funciones auxiliares en `Semana6/include/PQ_ComplHeap_percolateDown.h`, el código se vuelve más semántico. ANTES se escribía `while (pqInHeap(pqLeftChild(i), n))`, que mezcla conceptos de "hay un hijo" con "está en rango". DESPUÉS se escribe `while (pqHasLeftChild(i, n))`, que expresa claramente "mientras el nodo tiene hijo izquierdo". El compilador genera el mismo código máquina (porque `constexpr` se expande en tiempo de compilación), pero el código fuente es más legible. La complejidad sigue siendo O(log n) porque la altura del heap es logarítmica. El beneficio principal es mantenimiento y depuración más fáciles.
 
 Entrega en este bloque:
 
