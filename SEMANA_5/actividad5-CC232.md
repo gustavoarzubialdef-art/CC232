@@ -16,7 +16,7 @@ Responde:
 
    Un árbol binario enlazado usa nodos con punteros **left, right y parent**; su estructura depende de los enlaces. Un árbol binario implícito usa un arreglo donde la relación padre/hijo se calcula por índices, sin punteros explícitos.
 
-   solución en el texto; código relacionado: [BinNode.h] `BinNode.h#L11-L26` (estructura de nodo) y [BinaryHeap.h]`BinaryHeap.h#L16-L23` (representación implícita en arreglo).
+   En las cabeceras [BinNode.h] en las lineas 11-26 se muestra la estructura de nodo y [BinaryHeap.h] en las lineas 16-23 la representación implícita en arreglo.
 
 2. Explica qué información guarda un `BinNode`: dato, padre, hijo izquierdo, hijo derecho y altura.
 
