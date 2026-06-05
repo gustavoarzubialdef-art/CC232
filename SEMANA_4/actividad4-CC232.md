@@ -389,7 +389,12 @@ Responde:
 
 7. ¿Qué información codifican `incoming` y `outgoing`?
 
+   - `incoming` codifica la dirección desde la que se llegó a esa celda.  
+   - `outgoing` codifica la dirección que se va a intentar usar para salir de esa celda.  
 
+   En el código del laberinto ambas usan el enum `ESWN` y se actualizan así:
+   - cuando avanzo desde `current` a `next`, `current->outgoing` indica hacia dónde salgo,
+   - y `next->incoming` se pone a la dirección opuesta para señalar de dónde llegó el camino.
 
 8. ¿Por qué el algoritmo del laberinto marca y desmarca estado en lugar de solo "moverse"?
 
