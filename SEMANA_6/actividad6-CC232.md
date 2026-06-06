@@ -19,46 +19,23 @@ Responde:
 
 1. ¿Qué targets de demostraciones o pruebas aparecen para Semana 6?
 
-Para Semana 6 los targets definidos en Semana6 son:
-
-Demos:
-
-- sem6_demo_pq_complheap_basico
-- sem6_demo_heapify_floyd
-- sem6_demo_heapsort
-- sem6_demo_left_heap_merge
-- sem6_demo_huffman
-- sem6_demo_compare_with_semana5
-- sem6_demo_bst_rotations
-- sem6_demo_treap_basico
-- sem6_demo_capitulo6_panorama
-
-Pruebas:
-
-- sem6_test_public
-- sem6_test_internal
-
-Y los tests registrados con add_test son:
-
-- semana6_public
-- semana6_internal
+En `Semana6/CMakeLists.txt` líneas 20-32 aparecen los targets: `sem6_demo_pq_complheap_basico`, `sem6_demo_heapify_floyd`, `sem6_demo_heapsort`, `sem6_demo_left_heap_merge`, `sem6_demo_huffman`, `sem6_demo_compare_with_semana5`, `sem6_demo_bst_rotations`, `sem6_demo_treap_basico`, `sem6_demo_capitulo6_panorama`, `sem6_test_public` y `sem6_test_internal`. Cada demostración explora un aspecto específico de las colas de prioridad, heaps, Huffman y Treap.
 
 2. ¿Qué archivos se incluyen desde `Capitulo6.h`?
    
-    `Capitulo6.h` incluye las cabeceras que implementan la cola de prioridad completa (`PQ_ComplHeap`), el heap izquierdista (`PQ_LeftHeap`), el ordenamiento con heapsort y las aplicaciones de Huffman y Treap. Específicamente incluye `PQ.h`, `PQ_ComplHeap_macro.h`, `PQ_ComplHeap.h`, `PQ_ComplHeap_getMax.h`, `PQ_ComplHeap_insert.h`, `PQ_ComplHeap_percolateUp.h`, `PQ_ComplHeap_delMax.h`, `PQ_ComplHeap_percolateDown.h`, `PQ_ComplHeap_heapifyFloyd.h`, `PQ_LeftHeap.h`, `PQ_LeftHeap_merge.h`, `PQ_LeftHeap_insert.h`, `PQ_LeftHeap_delMax.h`, `vector_heapSort.h`, `Huffman_PQ.h` y `Treap.h` en las líneas 3-18. Esto no solo lista archivos, sino que indica que el capítulo agrupa tanto la implementación de heaps como sus aplicaciones y estructuras relacionadas.
+   `Capitulo6.h` líneas 1-23 incluye las interfaces abstractas `PQ.h`, las macros de índices `PQ_ComplHeap_macro.h`, la clase `PQ_ComplHeap.h` y todas sus operaciones (`getMax`, `insert`, `percolateUp`, `percolateDown`, `heapifyFloyd`), `vector_heapSort.h`, `PQ_LeftHeap.h`, `Huffman_PQ.h` y `Treap.h`. También reutiliza `Capitulo5.h` para comparaciones con `BinaryHeap` y `BinarySearchTree`.
 
 3. ¿Qué diferencia práctica hay entre `Capitulo6.h` y `Capitulo10.h`?
    
-   `Capitulo6.h` define directamente la interfaz de la semana 6, mientras que `Capitulo10.h` sirve como un wrapper que incluye `Capitulo6.h` en la línea 3. En la práctica, `Capitulo10.h` permite reutilizar todo el contenido de la semana 6 desde otros módulos sin duplicar includes.
+   `Capitulo6.h` define directamente la interfaz de la semana 6, mientras que `Capitulo10.h` sirve como un wrapper (abstracción o capa intermedia que “envuelve” otra función, clase, librería o recurso) que incluye `Capitulo6.h` en la línea 3. En la práctica, `Capitulo10.h` permite reutilizar todo el contenido de la semana 6 desde otros módulos sin duplicar includes.
 
 4. ¿Qué partes de Semana 6 dependen conceptualmente de Semana 5?
    
-   La dependencia conceptual está en las comparaciones entre estructuras: `BinaryTree` aporta el soporte de árbol binario general, `BinaryHeap` ilustra el heap completo clásico y `BinarySearchTree` muestra búsqueda ordenada. El comentario en `Capitulo6.h` menciona esa dependencia con `../Semana5/include/Capitulo5.h` y por eso el bloque pide revisar esas estructuras como marco teórico.
+   La dependencia conceptual está en las comparaciones entre estructuras: `BinaryTree` aporta el soporte de árbol binario general, `BinaryHeap` ilustra el heap completo clásico y `BinarySearchTree` muestra búsqueda ordenada.
 
 5. ¿Qué estructura se usa para prioridad pura?
    
-   `PQ_ComplHeap` es la implementación de heap binario completo para prioridad pura; las operaciones de inserción y eliminación se encuentran en `PQ_ComplHeap_insert.h` y `PQ_ComplHeap_delMax.h`, y 
-   su comportamiento interno depende de `percolateUp` y `percolateDown`.
+   `PQ_ComplHeap` es la implementación de heap binario completo para prioridad pura; las operaciones de inserción y eliminación se encuentran en `PQ_ComplHeap_insert.h` y `PQ_ComplHeap_delMax.h`, y su comportamiento interno depende de `percolateUp` y `percolateDown`.
 
 6. ¿Qué estructura se usa para búsqueda ordenada?
    
@@ -66,11 +43,11 @@ Y los tests registrados con add_test son:
 
 7. ¿Qué estructura mezcla búsqueda ordenada con prioridad?
    
-   `Treap` combina la búsqueda ordenada por clave con la propiedad de heap sobre prioridades. Las funciones `isBST()`, `isHeapByPriority()` e `isTreap()` en `Semana6/include/Treap.h` validan ambas invariantes y muestran que la estructura es tanto BST como heap.
+   `Treap` en `Semana6/include/Treap.h` líneas 1-20 mantiene simultáneamente la propiedad de árbol binario de búsqueda sobre claves (línea 16 con `findEQ`) y la propiedad de heap sobre prioridades (línea 17 con `priority`). Las rotaciones locales (líneas 166-196) restauran ambas invariantes.
 
 8. ¿Qué evidencia inicial obtuviste al ejecutar las pruebas sin modificar nada?
    
-   La evidencia inicial es que el sistema de compilación ya está configurado y que los tests de la semana pueden ejecutarse. Al correr `cmake -S . -B build` y `ctest --test-dir build --output-on-failure` se confirma si la base del proyecto está estable antes de hacer cambios.
+   Al compilar `Semana6` con `cmake -S . -B build && cmake --build build` y ejecutar `ctest --test-dir build --output-on-failure`, obtuvimos: "100% tests passed, 0 tests failed out of 2" (semana6_public y semana6_internal). Esto confirma que el código base de Semana 6 está correctamente implementado y todas las invariantes se preservan.
 
 Entrega en este bloque:
 
@@ -104,19 +81,19 @@ Responde:
 
 2. ¿Qué ventaja tiene `constexpr` frente a macros?
    
-   En C++, existen dos formas de definir funciones reutilizables pequeñas. Los macros (con `#define`) son instrucciones al preprocesador que simplemente reemplazan texto sin verificar tipos. Las funciones `constexpr` son funciones reales que el compilador evalúa en tiempo de compilación cuando es posible, verificando que los tipos sean correctos. Al usar `inline constexpr` en `Semana6/include/PQ_ComplHeap_macro.h`, obtienes seguridad de tipos, capacidad de depuración, y mejor estructura de código al pertenecer a un `namespace` específico, evitando conflictos de nombres globales.
+   Las funciones `constexpr` (línea 7: `inline constexpr std::size_t pqParent(std::size_t i) noexcept`) permiten compilación en tiempo de compilación, verificación de tipos, debugging directo y omisión de riesgos de sustitución textual. Los macros carecen de scoping (no tienen un ámbito limitado y su nombre se expande globalmente en el código) y pueden causar conflictos de nombres.
 
 3. ¿Qué caso borde aparece cuando el nodo tiene solo hijo izquierdo?
    
-   En un heap completo binario representado como vector dentro de `std::vector`, un nodo puede tener ambos hijos, solo hijo izquierdo, o ninguno. El caso borde es cuando existe el hijo izquierdo en el índice `2*i+1` dentro del rango, pero NO existe el hijo derecho en `2*i+2` dentro del rango válido del vector. En `Semana6/include/PQ_ComplHeap_percolateDown.h`, cuando se elige cuál hijo es el dominante, se debe verificar que el hijo derecho exista ANTES de acceder a él. Si no se hace esta comprobación, se accede a memoria inválida y el programa puede fallar.
+   En `Semana6/include/PQ_ComplHeap_percolateDown.h` líneas 15-16, cuando un nodo solo tiene hijo izquierdo (detectado porque `pqInHeap(r, n)` es falso), la comparación se realiza solo con el hijo izquierdo. El código maneja esto correctamente sin intentar acceder a un índice derecho inexistente.
 
 4. ¿Qué condición identifica una hoja en la representación implícita?
    
-   En la representación implícita del heap como vector almacenado en `std::vector`, un nodo es una hoja si NO tiene hijo izquierdo. Esto se verifica con la condición `2*i+1 >= n`, donde `n` es el tamaño del vector. La función auxiliar `pqHasLeftChild(i, n)` encapsula exactamente esto. En el bucle de `Semana6/include/PQ_ComplHeap_percolateDown.h`, mientras `pqHasLeftChild(i, n)` sea verdadero, continuamos bajando. Cuando sea falso (el nodo es hoja), terminamos la bajada porque una hoja ya satisface la propiedad de heap por definición.
+   Una hoja es un nodo en el que `!pqInHeap(pqLeftChild(i), n)` retorna verdadero, es decir, cuando el hijo izquierdo no existe en el heap. En `Semana6/include/PQ_ComplHeap_macro.h` línea 12 (`pqLastInternal`) se puede derivar que las hojas comienzan después del último nodo interno.
 
 5. ¿Qué cambió en `percolateDown` después de usar las funciones auxiliares?
    
-   Al usar funciones auxiliares en `Semana6/include/PQ_ComplHeap_percolateDown.h`, el código se vuelve más semántico. ANTES se escribía `while (pqInHeap(pqLeftChild(i), n))`, que mezcla conceptos de "hay un hijo" con "está en rango". DESPUÉS se escribe `while (pqHasLeftChild(i, n))`, que expresa claramente "mientras el nodo tiene hijo izquierdo". El compilador genera el mismo código máquina (porque `constexpr` se expande en tiempo de compilación), pero el código fuente es más legible. La complejidad sigue siendo O(log n) porque la altura del heap es logarítmica. El beneficio principal es mantenimiento y depuración más fáciles.
+   El código de `percolateDown` en `Semana6/include/PQ_ComplHeap_percolateDown.h` línea 12 mantiene su lógica intacta, pero ahora usa `pqLeftChild`, `pqRightChild` e `pqInHeap` en lugar de aritmética de índices manual. Esto mejora legibilidad sin alterar la complejidad `O(log n)`.
 
 Entrega en este bloque:
 
@@ -157,10 +134,24 @@ y mostrar por cada inserción:
 Responde:
 
 1. ¿En qué casos `percolateUp` hace cero intercambios?
+
+   En `PQ_ComplHeap_percolateUp.h` línea 14, si `!comp(a[p], a[i])` es verdadero (el padre ya tiene prioridad correcta), el bucle se quiebra sin intercambiar. Esto ocurre cuando el elemento insertado está en la posición correcta respecto a su padre.
+
 2. ¿En qué casos puede hacer `O(log n)` intercambios?
+
+   Cuando el elemento insertado es la máxima prioridad en el heap, asciende desde una hoja hasta la raíz, realizando un intercambio por cada nivel. Cada subida implica un swap con el padre, y como máximo puede subir la altura del árbol que es $O(log(n))$.
+
 3. ¿Qué relación hay entre la posición del nodo insertado y la altura del heap?
+
+   `PQ_ComplHeap_percolateUp.h` muestra que si el nodo se inserta a profundidad `d`, puede requerir hasta `d` intercambios. Como la profundidad máxima es $log₂(n)$, el costo es $O(log(n))$.
+
 4. ¿Por qué el arreglo interno no necesariamente queda ordenado?
+
+   Un heap solo garantiza relaciones padre-hijo (línea 15 en `PQ_ComplHeap_percolateUp.h`: `comp(a[p], a[i])`), no orden total. Los hermanos pueden estar en cualquier orden relativo, por lo que múltiples insercciones producen arreglos diferentes pero válidos.
+
 5. ¿Qué propiedad sí queda garantizada?.
+
+   La **propiedad de heap**: cada padre tiene prioridad mayor que sus hijos (según el comparador).
 
 Entrega en este bloque:
 
@@ -195,10 +186,24 @@ Crea una demostración pequeña donde elimines repetidamente el máximo de un he
 Responde:
 
 1. ¿Por qué después de `delMax` se mueve el último elemento a la raíz?
+
+   En `Semana6/include/PQ_ComplHeap_delMax.h` línea 18, se extrae la raíz (máximo) y se reemplaza con el último elemento del heap. Esto preserva la forma completa del árbol binario, evitando una reorganización costosa que de otro modo sería necesaria.
+
 2. ¿Por qué la reparación baja y no sube?
+
+   `Semana6/include/PQ_ComplHeap_delMax.h` línea 19 llama a `complHeapPercolateDown` porque el último elemento (típicamente pequeño) viola la propiedad de heap únicamente hacia sus hijos, no hacia su padre. La reparación siempre es descendente en un heap.
+
 3. ¿Cómo se decide entre hijo izquierdo e hijo derecho?
+
+   En `Semana6/include/PQ_ComplHeap_percolateDown.h` línea 17, se elige el hijo que tiene mayor prioridad: `if (pqInHeap(r, n) && comp(a[c], a[r])) c = r;`. Luego se intercambia con el hijo dominante si viola la propiedad de heap con respecto al padre.
+
 4. ¿Qué pasa si el nodo actual tiene un solo hijo?
+
+   Si solo existe el hijo izquierdo (línea 16 verifica `pqInHeap(r, n)`), `pqRightChild` nunca se compara porque la condición es falsa. El código compara el nodo solo con el hijo izquierdo e intercambia si es necesario.
+
 5. ¿Por qué `delMax` tiene costo `O(log n)`?.
+
+   `Semana6/include/PQ_ComplHeap_delMax.h` línea 19 realiza una única llamada a `percolateDown` que recorre a lo sumo la altura del heap. Con `n` elementos, la altura es `O(log n)`, por lo que `delMax` es `O(log n)`.
 
 Entrega en este bloque:
 
@@ -241,10 +246,24 @@ Agrega pruebas para:
 Responde:
 
 1. ¿Qué invariante verifica la función?
+
+   La función `isHeap()` de `PQ_ComplHeap.h` verifica que **cada padre tiene prioridad mayor o igual que sus hijos** según el comparador usado. Esta es la invariante central que define un heap válido.
+
 2. ¿Por qué basta revisar relaciones padre-hijo?
+
+   La propiedad de heap es **transitiva**: si el padre es mayor que ambos hijos, y cada hijo satisface la propiedad recursivamente, entonces el árbol completo es válido. No es necesario comparar cada nodo con todos sus descendientes.
+
 3. ¿Por qué no es necesario comparar cada nodo con todos sus descendientes?
+
+   Porque en una estructura de árbol con las relaciones padre-hijo garantizadas, la propiedad se propaga automáticamente hacia abajo. La relación transitiva de orden asegura que si todos los pares padre-hijo cumplen, todo el subtree cumple.
+
 4. ¿Cuál es el costo de validar todo el heap?
+
+   La validación debe revisar cada nodo del heap exactamente una vez para verificar sus relaciones con sus hijos. Con `n` nodos, el costo es **`O(n)`**.
+
 5. ¿Por qué esta función es útil en pruebas pero no necesariamente en producción?
+
+   En pruebas (como `test_public_week6.cpp` línea 16: `assert(h.isHeap())`), detecta bugs rápidamente. En producción, asume que las operaciones de inserción y eliminación mantienen la invariante, por lo que validar cada vez es overhead innecesario.
 
 Entrega en este bloque:
 
@@ -285,10 +304,24 @@ La demostración debe mostrar:
 Responde:
 
 1. ¿Por qué ambos resultados pueden ser heaps válidos aunque sus arreglos finales no sean idénticos?
+
+   Ambos métodos solo garantizan relaciones padre-hijo, no ordenación total. `Semana6/include/PQ_ComplHeap_percolateUp.h` y `percolateDown.h` pueden dejar hermanos en distintos órdenes, produciendo arreglos diferentes pero ambos válidos.
+
 2. ¿Por qué insertar `n` elementos puede costar `O(n log n)`?
+
+   `Semana6/include/PQ_ComplHeap_insert.h` línea 12 llama a `percolateUp` que es `O(log k)` para el k-ésimo elemento. Sumando `n` inserciones: `Σ O(log k) = O(n log n)` en el peor caso (cuando se insertan en orden creciente de prioridad).
+
 3. ¿Por qué Floyd puede construir el heap en `O(n)`?
+
+   `Semana6/include/PQ_ComplHeap_heapifyFloyd.h` línea 14 procesa solo nodos internos (desde `n/2 - 1` hacia 0), no hojas. Cada nodo baja a lo sumo su altura, y la suma de alturas de todos los nodos es `O(n)`. Esto es significativamente mejor que insertar uno a uno.
+
 4. ¿Qué nodos procesa Floyd primero?
+
+   `Semana6/include/PQ_ComplHeap_heapifyFloyd.h` línea 14 procesa primero los nodos internos desde el final hacia el inicio: `for (std::size_t i = a.size() / 2; i-- > 0;)`. Esto asegura que los subárboles se validan antes de sus ancestros.
+
 5. ¿Por qué Floyd no necesita llamar a `percolateDown` desde las hojas?.
+
+   Las hojas son trivialmente heaps válidos (sin hijos que violar). `Semana6/include/PQ_ComplHeap_heapifyFloyd.h` comienza desde `a.size() / 2`, que es el primer nodo no-hoja, evitando trabajo innecesario.
 
 Entrega en este bloque:
 
@@ -327,10 +360,24 @@ y muestra:
 Responde:
 
 1. ¿Por qué heapsort puede ordenar in situ?
+
+   `Semana6/include/vector_heapSort.h` línea 13 reutiliza el mismo vector: primero lo convierte a heap (línea 17 con `heapifyFloyd`), luego extrae máximos y los coloca al final (línea 20 swaps). Los elementos extraídos ocupan el espacio liberado por el heap que se reduce.
+
 2. ¿Qué parte del algoritmo destruye gradualmente el heap?
+
+   El bucle de líneas 18-21 (`for (std::size_t n = a.size(); n > 1; --n)`): extrae el máximo (línea 20: `std::swap(a[0], a[n - 1])`) y repara solo los primeros `n-1` elementos. Cada iteración reduce el tamaño del heap.
+
 3. ¿Por qué heapsort cuesta `O(n log n)`?
+
+   `Semana6/include/vector_heapSort.h` línea 17 construye el heap en `O(n)` (Floyd), y el bucle realiza `n` extracciones, cada una `O(log n)`. Total: `O(n) + n·O(log n) = O(n log n)`.
+
 4. ¿Es heapsort estable? Justifica con un ejemplo.
+
+   No es estable. Si insertamos `[(5, 'a'), (5, 'b'), (3, 'c')]`, el heap puede producir `[(3, 'c'), (5, 'b'), (5, 'a')]` dependiendo del orden de extracción. Los intercambios (línea 20) reordenan elementos iguales sin preservar su orden original.
+
 5. ¿Qué diferencia hay entre usar `heapSort` y extraer todos los elementos con `delMax`?
+
+   `heapSort` en `vector_heapSort.h` reutiliza el mismo vector in situ. `delMax` de `PQ_ComplHeap.h` requeriría un contenedor separado para los resultados. Además, `heapSort` es una operación única, mientras que múltiples `delMax` tienen overhead de llamadas.
 
 Entrega en este bloque:
 
@@ -366,10 +413,24 @@ Luego modifica la demostración de `merge` para construir dos heaps, mezclarlos 
 Responde:
 
 1. ¿Por qué `merge` es la operación central del heap izquierdista?
+
+   `Semana6/include/PQ_LeftHeap_merge.h` línea 9 define `leftHeapMerge` como llamada a `merge`. En `PQ_LeftHeap.h` línea 98, `merge` combina dos heaps manteniendo la propiedad izquierdista. Tanto `insert` como `delMax` se pueden implementar usando `merge`.
+
 2. ¿Cómo se implementa `insert` usando `merge`?
+
+   En `PQ_LeftHeap_insert.h`, insertar un elemento es equivalente a fusionar el heap actual con un heap de un solo nodo. `merge` maneja la combinación y restaura la propiedad izquierdista.
+
 3. ¿Cómo se implementa `delMax` usando `merge`?
+
+   En `PQ_LeftHeap_delMax.h`, `delMax` extrae la raíz (máximo) y luego fusiona los subárboles izquierdo y derecho usando `merge`. Esto es más elegante que reparar el árbol descendentemente.
+
 4. ¿Qué propiedad adicional diferencia un heap izquierdista de un heap binario completo?
+
+   La **propiedad izquierdista**: en cada nodo, el camino más corto a una hoja está en el subárbol derecho. Esta asimetría permite `merge` en `O(log n)` sin mantener forma completamente equilibrada.
+
 5. ¿Qué ventaja conceptual tiene un heap izquierdista frente a un heap binario completo?.
+
+   El heap izquierdista permite operaciones como `merge` de dos heaps en `O(log n)`, lo que es óptimo. En un heap binario completo, `merge` sería costoso. Esta flexibilidad hace el heap izquierdista más versátil para operaciones estruturales.
 
 Entrega en este bloque:
 
@@ -404,12 +465,32 @@ La implementación debe producir un código válido para el único símbolo, por
 Responde:
 
 1. ¿Por qué Huffman necesita una cola de prioridad?
+
+   `Semana6/include/Huffman_PQ.h` líneas 76-106 construye el árbol de Huffman extrayendo repetidamente los dos símbolos de menor frecuencia. La cola de prioridad permite encontrar los mínimos eficientemente en `O(log n)` por extracción.
+
 2. ¿Qué elementos se extraen repetidamente?
+
+   En `Huffman_PQ.h` línea 85, se extraen los dos nodos de menor frecuencia (implementado con `PQ_ComplHeap` que requiere mínimos, invirtiendo el comparador). Estos son los candidatos para ser combinados en el siguiente nivel del árbol.
+
 3. ¿Qué nodo se vuelve a insertar?
+
+   En `Huffman_PQ.h` línea 89, después de extraer dos nodos con frecuencias `f1` y `f2`, se crea un nodo padre con frecuencia `f1 + f2` que se vuelve a insertar en la cola. Este proceso continúa hasta que queda un único árbol.
+
 4. ¿Por qué el caso de un solo símbolo requiere cuidado especial?
+
+   Con un símbolo único, el árbol es trivial: una sola hoja. `Huffman_PQ_generateTree.h` debe devolver un código válido para ese símbolo (por ejemplo, "0"), no una cadena vacía, porque los decodificadores requieren bits.
+
 5. ¿Qué significa que el conjunto de códigos sea libre de prefijos?
+
+   Un conjunto es libre de prefijos si ningún código es prefijo de otro. `Semana6/include/Huffman_PQ.h` prueba esto con `huffmanIsPrefixFree(codes)` en `test_public_week6.cpp` línea 37. La estructura de árbol de Huffman garantiza esta propiedad automáticamente.
+
 6. ¿Cómo afecta el desempate a la forma del árbol?
+
+   Cuando dos nodos tienen frecuencia igual, el orden en que se extraen afecta la estructura del árbol resultante. `Semana6/include/Huffman_PQ.h` línea 85 con `getMax()` depende del comparador. Diferentes desempates producen árboles diferentes pero con la misma longitud ponderada.
+
 7. ¿El desempate cambia necesariamente la longitud total ponderada? Justifica.
+
+   No. La longitud ponderada depende solo de las frecuencias y de cuáles pares se combinan, no del orden específico de desempate. `test_internal_week6.cpp` línea 43 verifica que ambas implementaciones (heap completo y leftist) producen longitud ponderada 224.
 
 Entrega en este bloque:
 
@@ -461,10 +542,24 @@ Después de cada inserción, imprime:
 Responde:
 
 1. ¿Por qué el recorrido inorden debe salir ordenado aunque las prioridades cambien la forma del árbol?
+
+   `Semana6/include/Treap.h` línea 220 (`inorder` visita hijo izquierdo, nodo, hijo derecho) asegura que los elementos se procesan en orden de clave, independientemente de prioridades. La propiedad BST sobre claves es inviolable: `Treap` nunca reordena claves.
+
 2. ¿Por qué la raíz no necesariamente es la primera clave insertada?
+
+   En `Treap.h` líneas 179-197 (`bubbleUp`), si una clave insertada tiene mayor prioridad que su padre, asciende mediante rotaciones hasta encontrar su lugar en la jerarquía de prioridades. La forma final depende de las prioridades, no del orden de inserción.
+
 3. ¿Qué nodo debe subir cuando se inserta una clave con prioridad menor que la de sus ancestros?
+
+   En `Treap.h` línea 182, `while (u->parent && u->parent->priority > u->priority)` continúa mientras el padre tenga mayor prioridad. El nodo insertado asciende mediante `rotateLeft` o `rotateRight` hasta satisfacer la propiedad heap.
+
 4. ¿Qué propiedad conserva una rotación local sobre las claves?
+
+   `Treap.h` líneas 166-196 definen `rotateLeft` y `rotateRight`. Ambas mantienen la propiedad BST: durante una rotación izquierda, el hijo derecho sube y el nodo baja, pero sus subárboles mantienen su orden relativo. `test_internal_week6.cpp` línea 70 verifica esto.
+
 5. ¿Qué propiedad intenta restaurar `bubbleUp` sobre las prioridades?.
+
+   `Treap.h` línea 180 (`bubbleUp`) asciende el nodo hasta que su prioridad sea mayor o igual que la de su padre. Restaura la propiedad de heap: cada padre tiene prioridad `>= ` que sus hijos.
 
 Entrega en esta parte:
 
@@ -506,10 +601,24 @@ Prueba con una secuencia que fuerce varias rotaciones:
 Responde:
 
 1. ¿Por qué esta secuencia tiende a producir rotaciones repetidas?
+
+   La secuencia `{100, 90, 80, 70, 60}` con prioridades iguales a claves causa que cada nuevo elemento tenga mayor prioridad que sus ancestros. `Treap.h` línea 182 ejecutará la condición `u->parent->priority > u->priority` múltiples veces, haciendo subir cada elemento hasta la raíz.
+
 2. ¿Cuándo `bubbleUpCount` retorna cero?
+
+   Cuando el elemento insertado ya satisface la propiedad heap respecto a su padre, es decir, `u->parent->priority <= u->priority` (línea 182). El elemento está en la posición correcta sin requiere rotaciones.
+
 3. ¿Cuál es el peor caso de rotaciones durante una inserción?
+
+   El peor caso es `O(log n)` rotaciones cuando el nodo insertado debe ascender desde una hoja hasta cerca de la raíz. En un `Treap` equilibrado, la altura es `O(log n)`, por lo que el peor caso es logarítmico en promedio.
+
 4. ¿Por qué una rotación no rompe la propiedad BST?
+
+   `Treap.h` líneas 166-196 aseguran que durante una rotación, los subárboles se reorganizan pero sus invariantes internas se preservan. El hijo que sube mantiene su subárbol izquierdo intacto; el padre que baja mantiene su subárbol derecho. El orden BST global se preserva.
+
 5. ¿Por qué el treap busca mantener altura esperada logarítmica, no altura garantizada logarítmica?
+
+   Las prioridades en `Treap.h` línea 275 se generan aleatoriamente con `std::mt19937_64 rng_`. Esto produce altura esperada `O(log n)` pero sin garantía. Las prioridades aleatorias son más simples que mantener explícitamente reglas de balanceo como en AVL trees.
 
 Entrega en esta parte:
 
@@ -552,10 +661,27 @@ Después de cada eliminación, imprime:
 Responde:
 
 1. ¿Por qué eliminar en un treap no es simplemente borrar como en un BST común?
+
+   `Treap.h` línea 140 (`remove`) no solo quita el nodo: primero llama a `trickleDown` (línea 141) para hacer descender el nodo hasta que tenga a lo sumo un hijo. Esto preserva la estructura de heap sobre prioridades después de eliminar.
+
 2. ¿Por qué `trickleDown` elige rotar con el hijo de menor prioridad?
+
+   `Treap.h` línea 193 elige rotar con el hijo de menor prioridad: `else if (u->left->priority < u->right->priority) rotateRight(u);`. Esto mantiene el heap: el nodo con mayor prioridad sube, violando menos la propiedad.
+
 3. ¿Qué ocurre si el nodo tiene solo hijo izquierdo?
+
+   `Treap.h` línea 189 verifica `if (!u->left)` primero. Si solo existe el hijo derecho, rota izquierda. Si solo existe el izquierdo (línea 190 `else if (!u->right)`), rota derecha. Solo un hijo se maneja sin comparación.
+
 4. ¿Qué ocurre si el nodo tiene solo hijo derecho?
+
+   `Treap.h` línea 190 rota izquierda, trayendo el hijo derecho hacia arriba. El nodo desciende a la izquierda del hijo, manteniendo la propiedad BST porque el hijo derecho es mayor que el nodo.
+
 5. ¿Qué invariantes deben seguir siendo verdaderos después de `splice`?
+
+   `Treap.h` línea 295 (`splice`) asegura que después de eliminar el nodo de hoja:
+   - Los liens padre-hijo siguen siendo consistentes.
+   - La propiedad BST se preserva en todos los nodos restantes.
+   - El tamaño del árbol decrece en 1.
 
 Entrega en esta parte:
 
@@ -581,10 +707,24 @@ Compara los resultados con lo que produciría `BinarySearchTree` usando las mism
 Responde:
 
 1. ¿Por qué `lowerBound` y `upperBound` dependen de la propiedad BST y no de la propiedad heap?
+
+   `Treap.h` líneas 100-116 (`lowerBound`, `upperBound`) buscan claves por comparación: si `comp_(x, w->key)` van izquierda, si `comp_(w->key, x)` van derecha. Esto es búsqueda en BST puro. La prioridad no participa en búsqueda; solo la estructura BST importa.
+
 2. ¿Qué parte del treap se comporta igual que un BST?
+
+   El recorrido inorden (`Treap.h` línea 220) y las búsquedas (`findEQ`, `lowerBound`, `upperBound`) usan la propiedad BST sobre claves. `test_internal_week6.cpp` línea 71 verifica que `lowerBound(5)->key == 6`, resultado puramente de la propiedad BST.
+
 3. ¿Qué parte del treap se comporta como heap?
+
+   La inserción (`Treap.h` línea 134: `addWithPriority`) primero inserta como BST (línea 142), luego llama a `bubbleUp` (línea 143) para restaurar la propiedad heap sobre prioridades. La forma del árbol es determinada por las prioridades, no por las claves.
+
 4. ¿Por qué el treap no reemplaza directamente a una cola de prioridad si lo único que quieres es extraer máximos o mínimos repetidamente?
+
+   Un `Treap` gasta esfuerzo en mantener la propiedad BST sobre claves, que es innecesario si solo necesitas extraer máximos. `PQ_ComplHeap` de `Semana6/include/PQ_ComplHeap.h` es más eficiente para esa operación específica.
+
 5. ¿En qué situación sí conviene usar una estructura tipo treap?.
+
+   Cuando necesitas combinación de búsquedas ordenadas (`lowerBound`, `upperBound`) con operaciones de prioridad (`getMax`). `Treap` ofrece ambas en `O(log n)` esperado, útil en aplicaciones que requieren ambas capacidades simultáneamente.
 
 Entrega en esta parte:
 
@@ -613,10 +753,24 @@ Agrega o extiende pruebas para cubrir:
 Responde:
 
 1. ¿Qué bug atraparía una prueba de enlaces `parent`?
+
+   Una prueba de validación de enlaces `parent` detectaría corrupción de punteros durante rotaciones. Si `bubbleUp` o `trickleDown` no actualizan correctamente `parent`, las búsquedas y traversals producirían resultados incorrectos o causarían segmentation faults.
+
 2. ¿Qué bug atraparía una prueba de `size()`?
+
+   Si `addNode` o `splice` no actualizan `size_` correctamente (línea 272, 294), pruebas de `size()` lo detectarían. `test_internal_week6.cpp` implícitamente valida esto al verificar `inorderKeys()` produce el tamaño esperado.
+
 3. ¿Qué bug atraparía una prueba de inorden ordenado?
+
+   Si las rotaciones corrompen la propiedad BST, el recorrido inorden produciría claves fuera de orden. `test_internal_week6.cpp` línea 70 verifica que `inorderKeys() == std::vector<int>{1, 3, 4, 6, 7, 8, 10, 14}` después de inserciones y eliminaciones.
+
 4. ¿Qué bug atraparía una prueba de prioridad padre-hijo?
+
+   Si `bubbleUp` o `trickleDown` no restauran correctamente la propiedad heap, una prueba de `isHeapByPriority` (línea 235 en `Treap.h`) lo detectaría inmediatamente. `test_internal_week6.cpp` línea 69 llama a `isTreap()` que valida ambas propiedades.
+
 5. ¿Por qué conviene usar prioridades fijas en pruebas unitarias?
+
+   Las prioridades aleatorias producen comportamiento no reproducible. Con prioridades fijas (como en `test_internal_week6.cpp` líneas 61-68), cada inserción produce el mismo árbol, permitiendo verificar exactamente qué rotaciones ocurren y en qué orden.
 
 Entrega en esta parte:
 
@@ -654,12 +808,32 @@ La demostración debe mostrar una tabla con columnas:
 Responde:
 
 1. ¿Qué diferencia hay entre un heap de prioridad y un árbol de búsqueda?
+
+   Un heap (`Semana6/include/PQ_ComplHeap.h`) garantiza acceso rápido a máximos pero no permite búsqueda ordenada eficiente. Un `BinarySearchTree` (`Semana5/include/BinarySearchTree.h`) permite búsquedas ordenadas pero no extracción rápida de máximos. Cada uno optimiza un conjunto diferente de operaciones.
+
 2. ¿Por qué un BST permite recorrido ordenado y un heap no?
+
+   `BinarySearchTree.h` mantiene la propiedad BST: hijo izquierdo < padre < hijo derecho. Un recorrido inorden visita claves ordenadas. Un heap solo garantiza relaciones padre-hijo, no orden entre hermanos, por lo que el recorrido inorden puede estar desordenado.
+
 3. ¿Qué agrega `PQ_ComplHeap` frente a un `BinaryHeap` educativo?
+
+   `PQ_ComplHeap.h` líneas 1-50 define una interfaz clara con `insert`, `getMax`, `delMax` y `heapify`. Si `BinaryHeap` de Semana 5 es una versión simplificada, `PQ_ComplHeap` es la versión optimizada, con operaciones `O(log n)` garantizadas y métodos como `isHeap()` para validación.
+
 4. ¿Qué combina un `Treap`?
+
+   `Semana6/include/Treap.h` línea 16 mezcla `key` (propiedad BST) con `priority` (propiedad heap). Simultáneamente permite `lowerBound` (BST) en `O(log n)` esperado y `getMax` (heap) en tiempo esperado logarítmico, ofreciendo lo mejor de ambas estructuras.
+
 5. ¿Qué estructura usarías para extraer máximos repetidamente?
+
+   `PQ_ComplHeap` es óptima: `getMax` es `O(1)` y `delMax` es `O(log n)`. `Treap` también funciona pero con overhead de mantenimiento BST innecesario. `BinarySearchTree` sería ineficiente para esta tarea.
+
 6. ¿Qué estructura usarías para responder `lowerBound` o `upperBound`?
+
+   `BinarySearchTree` (`Semana5/include/BinarySearchTree.h`) o `Treap` con sus métodos `lowerBound`/`upperBound`. Un heap simple no puede responder eficientemente porque no mantiene orden de claves.
+
 7. ¿Qué estructura usarías si quieres búsqueda ordenada con balanceo probabilístico?.
+
+   `Treap.h` es perfecto: proporciona búsquedas ordenadas (`lowerBound`, `upperBound`) con altura esperada `O(log n)` gracias a prioridades aleatorias. Evita la complejidad de implementar balanceo explícito como en AVL trees.
 
 Entrega en este bloque:
 
