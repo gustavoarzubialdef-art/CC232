@@ -1,3 +1,10 @@
+## Actividad 4 - CC232
+
+### Estudiante
+- Nombre: GUSTAVO ANTHONY ARZUBIALDE FIERRO
+- Código: 20230205H
+- Fecha: 04/06/2026
+
 #### Bloque 1 - Núcleo conceptual de la semana
 
 Revisa:
