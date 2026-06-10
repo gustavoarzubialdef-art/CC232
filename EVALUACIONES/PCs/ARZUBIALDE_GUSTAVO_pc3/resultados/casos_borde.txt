@@ -1,0 +1,24 @@
+Casos borde considerados
+========================
+
+1. Caso minimo
+Entrada conceptual:
+n=1, camiseta (precio=5, calidad=7), presupuestos [4, 5]
+Salida esperada: 0 1
+Valida comprador que no alcanza y comprador justo en la frontera.
+
+2. Empate de calidad
+Camisetas: (10,8), (3,8), (4,8), presupuestos [7,10]
+Orden correcto: precio 3 antes que 4 antes que 10, porque la calidad empata.
+Salida esperada: 2 2
+
+3. Cruce de frontera
+Camisetas: (5,10), (4,9), (1,8), presupuestos [4,5,10]
+Salida esperada: 1 1 3
+Valida que un comprador que compra y cae debajo de la frontera se reinserta.
+
+4. Ausencia de compra
+Un comprador con presupuesto menor que todos los precios debe quedar con respuesta 0.
+
+5. Duplicados de dinero
+Compradores con el mismo dinero se ordenan por id para que el Treap conserve clave unica.

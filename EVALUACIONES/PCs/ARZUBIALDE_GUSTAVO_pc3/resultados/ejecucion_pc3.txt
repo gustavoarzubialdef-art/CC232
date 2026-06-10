@@ -1,0 +1,40 @@
+Evidencia de ejecucion PC3
+=========================
+
+Comando esperado:
+./build/tshirts.exe
+
+Ejemplo 1:
+Entrada:
+3
+7 5
+3 5
+4 3
+2
+13 14
+
+Salida esperada y obtenida:
+2 3
+
+Ejemplo 2:
+Entrada:
+2
+100 500
+50 499
+4
+50 200 150 100
+
+Salida esperada y obtenida:
+1 2 2 1
+
+Demo de traza ejecutada:
+./build/demo_trace.exe
+
+Salida obtenida de la demo:
+Estado inicial: (id=3, dinero=4, compra=0) (id=4, dinero=5, compra=0) (id=1, dinero=13, compra=0) (id=2, dinero=14, compra=0)
+Camiseta precio=3 calidad=5
+Estado despues: (id=3, dinero=1, compra=1) (id=4, dinero=2, compra=1) (id=1, dinero=10, compra=1) (id=2, dinero=11, compra=1)
+Camiseta precio=7 calidad=5
+Estado despues: (id=3, dinero=1, compra=1) (id=4, dinero=2, compra=1) (id=1, dinero=3, compra=2) (id=2, dinero=4, compra=2)
+Camiseta precio=4 calidad=3
+Estado despues: (id=2, dinero=0, compra=3) (id=3, dinero=1, compra=1) (id=4, dinero=2, compra=1) (id=1, dinero=3, compra=2)

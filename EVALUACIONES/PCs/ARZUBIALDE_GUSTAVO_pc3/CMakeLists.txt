@@ -15,3 +15,18 @@ target_include_directories(tshirts_core PUBLIC include)
 # Binario compatible con Codeforces (entrada interactiva con prompts)
 add_executable(tshirts src/main.cpp)
 target_link_libraries(tshirts PRIVATE tshirts_core)
+
+# Pruebas unitarias
+add_executable(test_tshirts tests/test_tshirts.cpp)
+target_link_libraries(test_tshirts PRIVATE tshirts_core)
+add_test(NAME test_tshirts COMMAND test_tshirts)
+
+# Demo: traza interna del Treap camiseta por camiseta
+add_executable(demo_trace demos/demo_trace.cpp)
+target_link_libraries(demo_trace PRIVATE tshirts_core)
+add_test(NAME demo_trace COMMAND demo_trace)
+
+# Demo: ejemplos oficiales sin entrada interactiva
+add_executable(demo_samples demos/demo_samples.cpp)
+target_link_libraries(demo_samples PRIVATE tshirts_core)
+add_test(NAME demo_samples COMMAND demo_samples)

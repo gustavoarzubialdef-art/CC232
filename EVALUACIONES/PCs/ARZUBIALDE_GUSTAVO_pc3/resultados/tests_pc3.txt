@@ -1,0 +1,22 @@
+Evidencia de pruebas PC3
+=======================
+
+Comando esperado:
+cmake -S . -B build
+cmake --build build
+ctest --test-dir build --output-on-failure
+
+Pruebas implementadas en tests/test_tshirts.cpp:
+- sampleOne: ejemplo 1 del enunciado.
+- sampleTwo: ejemplo 2 del enunciado.
+- minimalCase: caso minimo y frontera exacta.
+- tieByQualityUsesCheaperFirst: empates por calidad y menor precio.
+- boundaryWithCrossingCustomers: compradores que cruzan fronteras al restar.
+- explicitNaiveComparison: comparacion directa contra solveNaive.
+- smallRandomAgainstNaive: 200 casos aleatorios pequenos contra fuerza bruta.
+
+Ejecucion realizada:
+./build/tshirts.exe
+
+Salida obtenida:
+OK: pruebas PC3 T-Shirts superadas
