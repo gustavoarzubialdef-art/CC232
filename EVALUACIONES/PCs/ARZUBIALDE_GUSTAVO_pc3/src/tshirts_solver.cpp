@@ -268,6 +268,33 @@ std::vector<TShirt> sortedShirts(const std::vector<TShirt>& shirts) {
   return ordered;
 }
 
+// Función de debug: imprime inorder y verifica invariante
+void printFinalStateAndVerifyInvariant(CustomerTreap& treap, int k) {
+  std::cout << "\n=== VERIFICACIÓN DE INVARIANTE ===" << std::endl;
+  std::cout << "Estado final del Treap (inorder por dinero): " << std::endl;
+
+  //Inorder tranversal usando dumpInorder que ya existe
+  treap.dumpInorder(treap.root, std::cout);
+  std::cout << std::endl;
+
+  // Verificación de invariante
+  bool bstOk = treap.checkBST();
+  bool heapOk = treap.checkHeap(treap.root);
+
+  std::cout << "\nVerificación de propiedad: " << std::endl;
+  std::cout << "  Propiedad BST (inorder ordenado): "
+            << (bstOk ? "✓ PASS" : "✗ FAIL") << std::endl; 
+  std::cout << "  Propiedad Heap (prioridades): "
+            << (heapOk ? "✓ PASS" : "✗ FAIL") << std::endl;
+
+  if (bstOk && heapOk) {
+    std::cout << "\n✓ INVARIANTE VERIFICADO: Treap es válido" << std::endl;
+  } else {
+    std::cerr << "\n✗ ERROR: Invariante roto - hay bug en la implementación" << std::endl;
+  }
+  std::cout << "================================\n" << std::endl;
+}
+
 }
 
 // API publica
@@ -277,7 +304,12 @@ std::vector<int> solveFast(const std::vector<TShirt>& shirts,
   treap.build(budgets);
   for (const TShirt& s : sortedShirts(shirts))
     treap.buyForEligible(s.price);
-  return treap.answers();
+  
+  // Verificación explícita de invariante (Bloque 6 - modificación grabada)
+  std::vector<int> result = treap.answers();
+  printFinalStateAndVerifyInvariant(treap, (int)budgets.size());
+
+  return result;
 }
 
 std::vector<int> solveNaive(const std::vector<TShirt>& shirts,
