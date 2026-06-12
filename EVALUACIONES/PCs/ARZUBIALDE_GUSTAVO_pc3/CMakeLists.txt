@@ -7,12 +7,11 @@ set(CMAKE_CXX_EXTENSIONS OFF)
 
 enable_testing()
 
-add_library(tshirts_core
-    src/tshirts_solver.cpp
-)
+# Biblioteca central
+add_library(tshirts_core src/tshirts_solver.cpp)
 target_include_directories(tshirts_core PUBLIC include)
 
-# Binario compatible con Codeforces (entrada interactiva con prompts)
+# Binario principal compatible con Codeforces (entrada interactiva con prompts)
 add_executable(tshirts src/main.cpp)
 target_link_libraries(tshirts PRIVATE tshirts_core)
 
@@ -30,3 +29,7 @@ add_test(NAME demo_trace COMMAND demo_trace)
 add_executable(demo_samples demos/demo_samples.cpp)
 target_link_libraries(demo_samples PRIVATE tshirts_core)
 add_test(NAME demo_samples COMMAND demo_samples)
+
+# Benchmark: solveFast vs solveNaive para distintos tamanos
+add_executable(benchmark_tshirts benchmark/benchmark_tshirts.cpp)
+target_link_libraries(benchmark_tshirts PRIVATE tshirts_core)

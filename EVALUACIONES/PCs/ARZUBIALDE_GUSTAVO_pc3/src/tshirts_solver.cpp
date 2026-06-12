@@ -1,27 +1,41 @@
 #include "tshirts_solver.h"
 
+#include "cc232/BinaryHeap.h"   // ods::BinaryHeap  — Semana5
+#include "cc232/Treap.h"        // ods::Treap::Node — Semana6
+
 #include <algorithm>
 #include <cassert>
 #include <cstdint>
 #include <iostream>
-#include <random>
-#include <sstream>
 #include <stdexcept>
 
 namespace pc3 {
 namespace {
 
-struct CustomerNode {
+// CustomerNode: extiende ods::Treap<int>::Node
+struct CustomerNode : public ods::Treap<int>::Node {
   long long money{0};
-  int id{0};
   int bought{0};
-  int lazyBought{0};
   long long lazyMoney{0};
-  std::uint64_t priority{0};
-  CustomerNode* left{nullptr};
-  CustomerNode* right{nullptr};
+  int lazyBought{0};
+
+  CustomerNode() = default;
+  CustomerNode(int id, long long m, std::uint64_t prio)
+      : money(m) {
+    key      = id;
+    priority = prio;
+    parent   = nullptr;
+    left     = nullptr;
+    right    = nullptr;
+  }
+
+  // Acceso tipado a hijos (evita casts repetidos en el codigo)
+  CustomerNode* lc() const { return static_cast<CustomerNode*>(left);  }
+  CustomerNode* rc() const { return static_cast<CustomerNode*>(right); }
+  CustomerNode* par() const { return static_cast<CustomerNode*>(parent); }
 };
 
+// CustomerTreap
 struct CustomerTreap {
   CustomerNode* root{nullptr};
   std::mt19937_64 rng{232702};
@@ -30,228 +44,239 @@ struct CustomerTreap {
   bool enableInvariantChecks{false};
 
   ~CustomerTreap() {
-    for (CustomerNode* node : owned) {
-      delete node;
+    for (CustomerNode* n : owned) delete n;
+  }
+
+  // Aplica delta a un subarbol entero en O(1)
+  static void addLazy(CustomerNode* n, long long dm, int db) {
+    if (!n) return;
+    n->money      += dm;
+    n->lazyMoney  += dm;
+    n->bought     += db;
+    n->lazyBought += db;
+  }
+
+  // Propaga lazy a los hijos antes de descender
+  static void push(CustomerNode* n) {
+    if (!n) return;
+    if (n->lazyMoney != 0 || n->lazyBought != 0) {
+      addLazy(n->lc(), n->lazyMoney, n->lazyBought);
+      addLazy(n->rc(), n->lazyMoney, n->lazyBought);
+      n->lazyMoney  = 0;
+      n->lazyBought = 0;
     }
   }
 
-  static void addLazy(CustomerNode* node, long long deltaMoney, int deltaBought) {
-    if (node == nullptr) {
-      return;
-    }
-    node->money += deltaMoney;
-    node->lazyMoney += deltaMoney;
-    node->bought += deltaBought;
-    node->lazyBought += deltaBought;
+  // Orden del Treap: (money, id)
+  static bool less(const CustomerNode* a, const CustomerNode* b) {
+    if (a->money != b->money) return a->money < b->money;
+    return a->key < b->key;
   }
 
-  static bool lessNode(const CustomerNode* a, const CustomerNode* b) {
-    if (a->money != b->money) {
-      return a->money < b->money;
+  // merge: une dos subarboles ya ordenados.
+  // Raiz = nodo con menor priority (invariante heap de ods::Treap).
+  static CustomerNode* merge(CustomerNode* L, CustomerNode* R) {
+    if (!L) return R;
+    if (!R) return L;
+    if (L->priority < R->priority) {
+      push(L);
+      L->right = merge(L->rc(), R);
+      if (L->right) L->right->parent = L;
+      L->parent = nullptr;
+      return L;
     }
-    return a->id < b->id;
+    push(R);
+    R->left = merge(L, R->lc());
+    if (R->left) R->left->parent = R;
+    R->parent = nullptr;
+    return R;
   }
 
-  static void push(CustomerNode* node) {
-    if (node == nullptr) {
-      return;
+  // splitLessThan: separa nodos con money < threshold (izquierda)
+  // de nodos con money >= threshold (derecha).
+  static std::pair<CustomerNode*, CustomerNode*>
+  splitLessThan(CustomerNode* n, long long threshold) {
+    if (!n) return {nullptr, nullptr};
+    push(n);
+    if (n->money < threshold) {
+      auto [ll, lr] = splitLessThan(n->rc(), threshold);
+      n->right = ll;
+      if (ll) ll->parent = n;
+      n->parent = nullptr;
+      if (lr) lr->parent = nullptr;
+      return {n, lr};
     }
-    if (node->lazyMoney != 0 || node->lazyBought != 0) {
-      addLazy(node->left, node->lazyMoney, node->lazyBought);
-      addLazy(node->right, node->lazyMoney, node->lazyBought);
-      node->lazyMoney = 0;
-      node->lazyBought = 0;
-    }
+    auto [ll, lr] = splitLessThan(n->lc(), threshold);
+    n->left = lr;
+    if (lr) lr->parent = n;
+    n->parent = nullptr;
+    if (ll) ll->parent = nullptr;
+    return {ll, n};
   }
 
-  static CustomerNode* merge(CustomerNode* left, CustomerNode* right) {
-    if (left == nullptr) {
-      return right;
+  // insert: inserta un nodo suelto respetando (money,id) y priority.
+  static CustomerNode* insert(CustomerNode* r, CustomerNode* n) {
+    n->left = n->right = nullptr;
+    if (!r) return n;
+    push(r);
+    if (n->priority < r->priority) {
+      auto [ll, lr] = splitByNode(r, n);
+      n->left  = ll;  if (ll) ll->parent = n;
+      n->right = lr;  if (lr) lr->parent = n;
+      n->parent = nullptr;
+      return n;
     }
-    if (right == nullptr) {
-      return left;
-    }
-    if (left->priority < right->priority) {
-      push(left);
-      left->right = merge(left->right, right);
-      return left;
-    }
-    push(right);
-    right->left = merge(left, right->left);
-    return right;
-  }
-
-  static std::pair<CustomerNode*, CustomerNode*> splitLessThan(CustomerNode* node,
-                                                              long long money) {
-    if (node == nullptr) {
-      return {nullptr, nullptr};
-    }
-    push(node);
-    if (node->money < money) {
-      auto parts = splitLessThan(node->right, money);
-      node->right = parts.first;
-      return {node, parts.second};
-    }
-    auto parts = splitLessThan(node->left, money);
-    node->left = parts.second;
-    return {parts.first, node};
-  }
-
-  static CustomerNode* insert(CustomerNode* root, CustomerNode* node) {
-    node->left = nullptr;
-    node->right = nullptr;
-    if (root == nullptr) {
-      return node;
-    }
-    push(root);
-    if (node->priority < root->priority) {
-      auto parts = splitByNode(root, node);
-      node->left = parts.first;
-      node->right = parts.second;
-      return node;
-    }
-    if (lessNode(node, root)) {
-      root->left = insert(root->left, node);
+    if (less(n, r)) {
+      r->left = insert(r->lc(), n);
+      if (r->left) r->left->parent = r;
     } else {
-      root->right = insert(root->right, node);
+      r->right = insert(r->rc(), n);
+      if (r->right) r->right->parent = r;
     }
-    return root;
+    return r;
   }
 
-  static std::pair<CustomerNode*, CustomerNode*> splitByNode(CustomerNode* root,
-                                                            CustomerNode* pivot) {
-    if (root == nullptr) {
-      return {nullptr, nullptr};
+  static std::pair<CustomerNode*, CustomerNode*>
+  splitByNode(CustomerNode* r, CustomerNode* pivot) {
+    if (!r) return {nullptr, nullptr};
+    push(r);
+    if (less(r, pivot)) {
+      auto [ll, lr] = splitByNode(r->rc(), pivot);
+      r->right = ll; if (ll) ll->parent = r;
+      r->parent = nullptr;
+      if (lr) lr->parent = nullptr;
+      return {r, lr};
     }
-    push(root);
-    if (lessNode(root, pivot)) {
-      auto parts = splitByNode(root->right, pivot);
-      root->right = parts.first;
-      return {root, parts.second};
-    }
-    auto parts = splitByNode(root->left, pivot);
-    root->left = parts.second;
-    return {parts.first, root};
+    auto [ll, lr] = splitByNode(r->lc(), pivot);
+    r->left = lr; if (lr) lr->parent = r;
+    r->parent = nullptr;
+    if (ll) ll->parent = nullptr;
+    return {ll, r};
   }
 
-  static void collectAndInsert(CustomerNode*& root, CustomerNode* subtree) {
-    if (subtree == nullptr) {
-      return;
-    }
-    push(subtree);
-    CustomerNode* left = subtree->left;
-    CustomerNode* right = subtree->right;
-    subtree->left = nullptr;
-    subtree->right = nullptr;
-    root = insert(root, subtree);
-    collectAndInsert(root, left);
-    collectAndInsert(root, right);
+  // Recorre un subarbol desconectado y reinserta nodo a nodo.
+  static void collectAndInsert(CustomerNode*& r, CustomerNode* sub) {
+    if (!sub) return;
+    push(sub);
+    CustomerNode* L = sub->lc();
+    CustomerNode* R = sub->rc();
+    sub->left = sub->right = sub->parent = nullptr;
+    r = insert(r, sub);
+    collectAndInsert(r, L);
+    collectAndInsert(r, R);
   }
 
   CustomerNode* makeNode(long long money, int id) {
-    auto* node = new CustomerNode;
-    node->money = money;
-    node->id = id;
-    node->priority = rng();
-    owned.push_back(node);
-    return node;
+    auto* n = new CustomerNode(id, money, rng());
+    owned.push_back(n);
+    return n;
   }
 
   void build(const std::vector<long long>& budgets) {
     byId.assign(budgets.size(), nullptr);
-    enableInvariantChecks = budgets.size() <= 256;
-    for (int i = 0; i < static_cast<int>(budgets.size()); ++i) {
-      CustomerNode* node = makeNode(budgets[i], i);
-      byId[i] = node;
-      root = insert(root, node);
+    enableInvariantChecks = (budgets.size() <= 256);
+    for (int i = 0; i < (int)budgets.size(); ++i) {
+      CustomerNode* n = makeNode(budgets[i], i);
+      byId[i] = n;
+      root = insert(root, n);
     }
     assertInvariantIfSmall();
   }
 
+  // Operacion central: por cada camiseta de precio c,
+  // resta c y suma 1 compra a todos los compradores con money >= c.
   void buyForEligible(long long price) {
-    auto first = splitLessThan(root, price);
-    CustomerNode* unable = first.first;
-    CustomerNode* eligible = first.second;
+    auto [unable, eligible] = splitLessThan(root, price);
     addLazy(eligible, -price, 1);
-
-    auto second = splitLessThan(eligible, price);
-    CustomerNode* crossedBelowPrice = second.first;
-    CustomerNode* stillAtLeastPrice = second.second;
-
-    collectAndInsert(unable, crossedBelowPrice);
-    root = merge(unable, stillAtLeastPrice);
+    auto [crossed, stillOk] = splitLessThan(eligible, price);
+    collectAndInsert(unable, crossed);
+    root = merge(unable, stillOk);
     assertInvariantIfSmall();
   }
 
-  static bool checkOrdered(CustomerNode* node, CustomerNode*& previous) {
-    if (node == nullptr) {
-      return true;
-    }
-    push(node);
-    if (!checkOrdered(node->left, previous)) {
-      return false;
-    }
-    if (previous != nullptr && lessNode(node, previous)) {
-      return false;
-    }
-    previous = node;
-    return checkOrdered(node->right, previous);
+  // Validacion con ods::Treap
+  static bool checkOrdered(CustomerNode* n, CustomerNode*& prev) {
+    if (!n) return true;
+    push(n);
+    if (!checkOrdered(n->lc(), prev)) return false;
+    if (prev && !less(prev, n))       return false;
+    prev = n;
+    return checkOrdered(n->rc(), prev);
   }
 
-  bool checkInvariant() {
-    CustomerNode* previous = nullptr;
-    return checkOrdered(root, previous);
+  // Verifica propiedad BST (orden inorder por (money,id))
+  bool checkBST() const {
+    CustomerNode* prev = nullptr;
+    return checkOrdered(root, prev);
+  }
+
+  // Verifica propiedad heap por priority (igual que ods::Treap::isHeapByPriority)
+  static bool checkHeap(CustomerNode* n) {
+    if (!n) return true;
+    if (n->lc() && n->lc()->priority < n->priority) return false;
+    if (n->rc() && n->rc()->priority < n->priority) return false;
+    return checkHeap(n->lc()) && checkHeap(n->rc());
+  }
+
+  // Equivalente a ods::Treap::isTreap(): BST por clave + heap por priority
+  bool checkInvariant() const {
+    return checkBST() && checkHeap(root);
   }
 
   void assertInvariantIfSmall() {
-    if (enableInvariantChecks) {
-      assert(checkInvariant());
-    }
+    if (enableInvariantChecks) assert(checkInvariant());
   }
 
   std::vector<int> answers() {
-    if (!checkInvariant()) {
+    if (!checkInvariant())
       throw std::logic_error("Treap invariant failed before reading answers");
-    }
     std::vector<int> ans(byId.size());
-    for (int i = 0; i < static_cast<int>(byId.size()); ++i) {
+    for (int i = 0; i < (int)byId.size(); ++i)
       ans[i] = byId[i]->bought;
-    }
     return ans;
   }
 
-  void dumpInorder(CustomerNode* node, std::ostream& out) {
-    if (node == nullptr) {
-      return;
-    }
-    push(node);
-    dumpInorder(node->left, out);
-    out << "(id=" << node->id + 1 << ", dinero=" << node->money
-        << ", compra=" << node->bought << ") ";
-    dumpInorder(node->right, out);
+  void dumpInorder(CustomerNode* n, std::ostream& out) const {
+    if (!n) return;
+    push(n);
+    dumpInorder(n->lc(), out);
+    out << "(id=" << n->key + 1
+        << ", dinero=" << n->money
+        << ", compra=" << n->bought << ") ";
+    dumpInorder(n->rc(), out);
+  }
+};
+
+// sortedShirts: usa ods::BinaryHeap (Semana5)
+struct ShirtCmp {
+  bool operator()(const TShirt& a, const TShirt& b) const {
+    // BinaryHeap es min-heap: queremos extraer mayor calidad primero,
+    // por eso invertimos: "a < b" si a tiene MENOR prioridad de extraccion.
+    if (a.quality != b.quality) return a.quality > b.quality;  // mayor calidad = menor en el heap
+    return a.price < b.price;                                   // menor precio = menor en el heap
   }
 };
 
 std::vector<TShirt> sortedShirts(const std::vector<TShirt>& shirts) {
-  std::vector<TShirt> ordered = shirts;
-  std::sort(ordered.begin(), ordered.end(), [](const TShirt& a, const TShirt& b) {
-    if (a.quality != b.quality) {
-      return a.quality > b.quality;
-    }
-    return a.price < b.price;
-  });
+  // Construye heap con comparador: extrae en orden (calidad desc, precio asc)
+  ods::BinaryHeap<TShirt, ShirtCmp> heap(shirts);
+  std::vector<TShirt> ordered;
+  ordered.reserve(shirts.size());
+  while (!heap.empty()) {
+    ordered.push_back(heap.remove());
+  }
   return ordered;
 }
 
-}  // namespace
+}
 
+// API publica
 std::vector<int> solveFast(const std::vector<TShirt>& shirts,
                            const std::vector<long long>& budgets) {
   CustomerTreap treap;
   treap.build(budgets);
-  for (const TShirt& shirt : sortedShirts(shirts)) {
-    treap.buyForEligible(shirt.price);
-  }
+  for (const TShirt& s : sortedShirts(shirts))
+    treap.buyForEligible(s.price);
   return treap.answers();
 }
 
@@ -259,13 +284,10 @@ std::vector<int> solveNaive(const std::vector<TShirt>& shirts,
                             const std::vector<long long>& budgets) {
   std::vector<TShirt> ordered = sortedShirts(shirts);
   std::vector<int> answer(budgets.size(), 0);
-  for (int i = 0; i < static_cast<int>(budgets.size()); ++i) {
-    long long remaining = budgets[i];
-    for (const TShirt& shirt : ordered) {
-      if (remaining >= shirt.price) {
-        remaining -= shirt.price;
-        ++answer[i];
-      }
+  for (int i = 0; i < (int)budgets.size(); ++i) {
+    long long rem = budgets[i];
+    for (const TShirt& s : ordered) {
+      if (rem >= s.price) { rem -= s.price; ++answer[i]; }
     }
   }
   return answer;
@@ -285,9 +307,9 @@ void printOrderedTrace(const std::vector<TShirt>& shirts,
   out << "Estado inicial: ";
   treap.dumpInorder(treap.root, out);
   out << '\n';
-  for (const TShirt& shirt : ordered) {
-    out << "Camiseta precio=" << shirt.price << " calidad=" << shirt.quality << '\n';
-    treap.buyForEligible(shirt.price);
+  for (const TShirt& s : ordered) {
+    out << "Camiseta precio=" << s.price << " calidad=" << s.quality << '\n';
+    treap.buyForEligible(s.price);
     out << "Estado despues: ";
     treap.dumpInorder(treap.root, out);
     out << '\n';

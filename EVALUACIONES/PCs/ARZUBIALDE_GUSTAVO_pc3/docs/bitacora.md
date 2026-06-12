@@ -66,3 +66,17 @@ Archivos subidos: `docs/bitacora.md`, `docs/respuestas_obligatorias.md`.
 - Se redactó la bitácora con el avance real día a día.
 - Se completaron las 20 preguntas comunes de defensa oral y las 3 preguntas
   específicas del problema en `respuestas_obligatorias.md`.
+
+## 11 de junio de 2026 — cuarto commit (jueves)
+
+Archivos y cambios incluidos: `.gitignore`, correcciones finales en cabeceras, benchmark y ajustes en CMake.
+
+- Se agrega `.gitignore` para excluir `build/`, ejecutables, objetos y archivos generados por CMake.
+- Se verifica que `git ls-files` no muestre ningún `.exe`, `.o`, `CMakeCache.txt` ni carpeta `build/`.
+- Se revisa que `cmake -S . -B build && cmake --build build` funcione en limpio desde cero en MSYS2 UCRT64.
+- **Cabecera `tshirts_solver.h`**: se eliminan librerías innecesarias, quedando solo:
+  ```cpp
+  #pragma once
+  #include <iosfwd>
+  #include <vector>
+  ```

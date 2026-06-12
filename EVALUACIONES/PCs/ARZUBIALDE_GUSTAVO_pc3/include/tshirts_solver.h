@@ -1,8 +1,6 @@
 #pragma once
 
 #include <iosfwd>
-#include <string>
-#include <utility>
 #include <vector>
 
 namespace pc3 {
